@@ -1,0 +1,55 @@
+
+
+/* Row containing search and notification */
+.sidebar-top-row {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+}
+
+/* Search box wrapper */
+.search-wrapper {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* Search input */
+.search {
+  width: 100%;
+  padding: 8px;
+  background: #ffffff1a;
+  border: none;
+  color: rgb(151, 149, 149);
+  border-radius: 8px 0 0 8px;
+  outline: none;
+}
+
+/* Search button */
+.searchBtn {
+  background: #ffffff33;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+}
+
+/* Notification badge */
+.notif-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+/* Notification icon container (IMPORTANT) */
+.notification-icon {
+  position: relative;   /* Needed for badge placement */
+  margin-left: 15px;
+  cursor: pointer;
+}
