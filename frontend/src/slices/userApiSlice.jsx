@@ -1,40 +1,49 @@
 import apiSlice from "./apiSlice";
 
+export const userApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // Login
+    login: builder.mutation({
+      query: (data) => ({
+        url: "/users/login",
+        body: data,
+      }),
+      invalidatesTags: ["User"],
+    }),
 
-export const userApiSlice=apiSlice.injectEndpoints({
-    endpoints:(builder)=>({
-        login:builder.mutation({
-            query:(data)=>({
-                url:'/api/users/login',
-                method:'POST',
-                body:data,
-            }),
-        }),
-        logout:builder.mutation({
-            query:()=>({
-                url:'/api/users/logout',
-                method:'POST',
-                
-            }),
-        }),
-        register:builder.mutation({
-            query:(data)=>({
-                url:'/api/users/',
-                method:'POST',
-                body:data,
-            }),
-        }),
-        getUsers:builder.query({
-            query:()=>({
-                url:'/api/users/',
-                method:'GET',
-            })
-        })
+    // Logout
+    logout: builder.mutation({
+      query: () => ({
+        url: "/users/logout", 
+        method: "POST",
+      }),
+      invalidatesTags: ["User", "Chat", "Messages"],
+    }),
 
+    // Register new user
+    register: builder.mutation({
+      query: (formData) => ({
+        url: "/users", 
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["User"],
+    }),
 
-    })
+    // Get all users
+    getUsers: builder.query({
+      query: () => ({
+        url: "/users", 
+        method: "GET",
+      }),
+      providesTags: ["User"],
+    }),
+  }),
+});
 
-    
-})
-
-export const{useLoginMutation,useLogoutMutation,useRegisterMutation,useGetUsersQuery}=userApiSlice
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useRegisterMutation,
+  useGetUsersQuery,
+} = userApiSlice;

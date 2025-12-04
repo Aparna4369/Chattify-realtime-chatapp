@@ -1,42 +1,31 @@
-import Container from 'react-bootstrap/Container';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import '../styles/header.css';
-import logo from '../assets/logo.png';
-import { logout } from '../slices/authSlice';
-import { useLogoutMutation } from '../slices/userApiSlice';
-import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { MdLogout, MdOutlineLogin } from 'react-icons/md';
-
+import Container from "react-bootstrap/Container";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import "../styles/header.css";
+import logo from "../assets/logo.png";
+import { logout } from "../slices/authSlice";
+import { useLogoutMutation } from "../slices/userApiSlice";
+import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { MdLogout, MdOutlineLogin } from "react-icons/md";
+import apiSlice from "../slices/apiSlice";
 
 function Header() {
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logoutApiCall] = useLogoutMutation();
-  
-  
- 
- 
 
   const logoutHandler = async () => {
-    console.log("Logout button clicked ✅");
     try {
       await logoutApiCall().unwrap();
-      dispatch(logout());
-      navigate('/login');
+    dispatch(logout());
+    dispatch(apiSlice.util.resetApiState()); // ✅ clear cached messages & chats
+    navigate("/login");
     } catch (err) {
       console.error(err);
     }
-
-  
-
   };
- 
-
- 
-
 
   return (
     <Navbar expand="lg" className="custom-navbar">
@@ -47,16 +36,13 @@ function Header() {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          
           <div className="ms-auto d-flex align-items-center gap-3">
-           
             {userInfo ? (
               <>
-                {/* Profile Picture & Name */}
                 <div className="d-flex align-items-center text-white">
                   {userInfo.image ? (
                     <img
-                      src={userInfo.image}
+                      src={`http://localhost:5000${userInfo.image}`}
                       alt={userInfo.name}
                       className="user-pic"
                       style={{
@@ -69,8 +55,7 @@ function Header() {
                     />
                   ) : (
                     <div
-                      className="user-pic bg-primary text-white d-flex align-items-center 
-                      justify-content-center"
+                      className="user-pic bg-primary text-white d-flex align-items-center justify-content-center"
                       style={{
                         width: "35px",
                         height: "35px",
@@ -85,11 +70,10 @@ function Header() {
                   <span className="fw-bold text-success">{userInfo.name}</span>
                 </div>
 
-                {/* Logout Button */}
                 <span
                   className="logout"
                   onClick={logoutHandler}
-                  style={{ cursor: 'pointer', fontSize: '22px' }}
+                  style={{ cursor: "pointer", fontSize: "22px" }}
                   title="Logout"
                 >
                   <MdLogout />

@@ -1,20 +1,20 @@
 
 
-/* Row containing search and notification */
+
 .sidebar-top-row {
   display: flex;
   justify-content: space-between;
   width: 90%;
 }
 
-/* Search box wrapper */
+
 .search-wrapper {
   flex-grow: 1;
   display: flex;
   align-items: center;
 }
 
-/* Search input */
+
 .search {
   width: 100%;
   padding: 8px;
@@ -35,7 +35,7 @@
   cursor: pointer;
 }
 
-/* Notification badge */
+
 .notif-count {
   position: absolute;
   top: -6px;
@@ -47,9 +47,22 @@
   border-radius: 50%;
   font-weight: bold;
 }
-/* Notification icon container (IMPORTANT) */
+
 .notification-icon {
-  position: relative;   /* Needed for badge placement */
-  margin-left: 15px;
+  position: relative;  
   cursor: pointer;
 }
+.group-btn {
+  background: #4b7bec;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.group-btn:hover {
+  background: #3867d6;
+}
+

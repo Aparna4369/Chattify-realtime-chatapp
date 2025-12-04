@@ -1,55 +1,71 @@
-import React, { useState } from 'react';
-import '../styles/home.css';
+import React, { useState } from "react";
+import "../styles/sidebar.css";
 import { FaSearch } from "react-icons/fa";
 import { IoNotifications } from "react-icons/io5";
+import CreateGroupModal from "./CreateGroupModal";
 
-const Sidebar = ({ onSearch, notifications = [] }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const Sidebar = ({ searchKey, setSearchKey, setChats, notifications = [], onNotificationClick }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [openGroupModal, setOpenGroupModal] = useState(false);
 
-  const handleChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    if (onSearch) onSearch(value);
-  };
-
+   
   return (
-    <div className='sidebar py-4'>
+    <div className="sidebar py-4">
+      <div className="ms-4 mb-3">
+        <button className="group-btn" onClick={() => setOpenGroupModal(true)}>
+          + Create Group
+        </button>
+      </div>
 
-      {/* 🔍 SEARCH + 🔔 NOTIFICATION IN ONE LINE */}
       <div className="sidebar-top-row d-flex align-items-center ms-4">
-
-        {/* Search box */}
-        <form 
-          onSubmit={(e) => e.preventDefault()} 
-          className="d-flex align-items-center search-wrapper"
-        >
+        <form onSubmit={(e) => e.preventDefault()} className="d-flex align-items-center search-wrapper">
           <input
             type="text"
-            value={searchTerm}
-            className='search'
-            onChange={handleChange}
-            placeholder='search...'
+            value={searchKey}
+            className="search"
+            onChange={(e) => setSearchKey(e.target.value)}
+            placeholder="Search..."
           />
-          <button type='submit' className='searchBtn'>
-            <FaSearch />
-          </button>
+          <button type="submit" className="searchBtn"><FaSearch /></button>
         </form>
 
-        {/* Notification Icon */}
         <div className="notification-icon position-relative ms-5">
-          <IoNotifications size={28} className="text-danger" />
-
-          {notifications.length > 0 && (
-            <span className="notif-count">
-              {notifications.length}
-            </span>
+          <IoNotifications
+            size={28}
+            className="text-danger"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{ cursor: "pointer" }}
+          />
+          {notifications.length > 0 && <span className="notif-count">{notifications.length}</span>}
+          {dropdownOpen && (
+            <div className="notif-dropdown">
+              {notifications.length === 0 ? (
+                <p className="text-center text-muted p-2">No new messages</p>
+              ) : (
+                notifications.map((notif, idx) => (
+                  <div key={idx} className="notif-item" onClick={() => onNotificationClick(notif)}>
+                    <strong>{notif.sender.name}</strong>
+                    <p className="m-0 small">{notif.text}</p>
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
-
       </div>
+
+      
+ <CreateGroupModal 
+    show={openGroupModal}
+    onHide={() => setOpenGroupModal(false)}
+    setChats={setChats}  
+  />
+
+  
 
     </div>
   );
 };
+
 
 export default Sidebar;

@@ -1,33 +1,42 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import connectDB from './config/db.js';
-import userRoutes from './routes/userRoutes.js';
-import cookieParser from 'cookie-parser';
-import chatRoutes from './routes/chatRoutes.js';
-import cors from 'cors';
-import http from 'http';
-import { Server } from 'socket.io';
+import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import userRoutes from "./routes/userRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
+
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 connectDB();
 
 const app = express();
 
+
+
+// Middlewares
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: "http://localhost:5173", //  frontend port
   credentials: true,
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+// API routes
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-// ✅ Create HTTP server and Socket.IO instance
+
+
+
+
+// Create server
 const server = http.createServer(app);
 const io = new Server(server, {
   pingTimeout: 60000,
@@ -37,51 +46,43 @@ const io = new Server(server, {
   },
 });
 
-// ✅ Handle socket connections
+// Attach io to each request
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+
 io.on("connection", (socket) => {
   console.log(" New user connected:", socket.id);
 
-  // When user joins a chat
+  
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    console.log("User joined personal room:", userData._id);
+    socket.emit("connected");
+  });
+
+  
   socket.on("joinChat", (chatId) => {
     socket.join(chatId);
-    console.log(` User joined chat: ${chatId}`);
+    console.log(`User joined chat: ${chatId}`);
   });
 
-  socket.on("newMessage", (messageData) => {
-  const chatId = messageData.chatId;
-  console.log("New message received:", messageData.text);
-  socket.to(chatId).emit("messageReceived", messageData);
+  
+  socket.on("typing", (chatId) => socket.to(chatId).emit("typing"));
+  socket.on("stopTyping", (chatId) => socket.to(chatId).emit("stopTyping"));
+
+  // Group join/leave
+  socket.on("join group", (chatId) => socket.join(chatId));
+  socket.on("leave group", (chatId) => socket.leave(chatId));
+
+  // Disconnect
+  socket.on("disconnect", () => console.log(" User disconnected:", socket.id));
 });
 
-socket.on("notifyNewMessage", (msg) => {
-  socket.broadcast.emit("newMessageAlert", msg);
-});
-socket.on("clearNotifications", () => {
-  socket.emit("notificationsCleared");
-});
 
-
-
-
-  // When someone is typing
-  socket.on("typing", (chatId) => {
-    console.log(` Typing in chat: ${chatId}`);
-    socket.to(chatId).emit("typing");
-  });
-
-  // When typing stopped
-  socket.on("stopTyping", (chatId) => {
-    console.log(` Stop typing in chat: ${chatId}`);
-    socket.to(chatId).emit("stopTyping");
-  });
-
-  // When user disconnects
-  socket.on("disconnect", () => {
-    console.log(" User disconnected:", socket.id);
-  });
-});
-
-// ✅ Start server
-server.listen(port, '::', () => {
-  console.log('Listening request on the port', port);
+// Start server
+server.listen(PORT, () => {
+  console.log(` Server running on port ${PORT}`);
 });

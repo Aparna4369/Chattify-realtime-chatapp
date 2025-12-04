@@ -1,11 +1,12 @@
 import { io } from "socket.io-client";
 
-// backend server URL (your Express + Socket.io server)
-const SOCKET_URL = "http://localhost:3000";
-
-const socket = io(SOCKET_URL, {
-  withCredentials: true,
-  transports:['websocket'],
+const SOCKET_URL = "http://localhost:5001"; 
+const socket = io(SOCKET_URL, { 
+  withCredentials: true, 
+  transports: ['websocket', 'polling'], 
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
 });
 
 export default socket;

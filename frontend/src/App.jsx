@@ -5,14 +5,14 @@ import { Route } from 'react-router'
 import { Routes } from 'react-router'
 import LoginScreen from './screens/loginScreen'
 import {ToastContainer} from 'react-toastify'
-import { useSelector } from 'react-redux'
+
 import "react-toastify/dist/ReactToastify.css";
 
 
 
 
 const App = () => {
-  const {userInfo}=useSelector((state)=>state.auth)
+ 
   return (
 
     <div>     
@@ -20,7 +20,8 @@ const App = () => {
         <Routes>
            <Route path='/register' element={<SignupScreen/>} />
            <Route path='/login' element={<LoginScreen/>} />
-          <Route path='/' element={ userInfo? <HomeScreen/>:<LoginScreen/>} />
+          <Route path='/home' element={<HomeScreen/> }/>
+          <Route path='/' element={<LoginScreen/> }/>
           
         </Routes>
      

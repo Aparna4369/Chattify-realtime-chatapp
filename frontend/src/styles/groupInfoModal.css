@@ -1,0 +1,22 @@
+
+.selected-user-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.member-item.selected {
+  background-color: #e7f3ff;
+  border-left: 4px solid #0d6efd;
+}
+
+.member-item:hover {
+  background-color: #f8f9fa;
+}
+
+.create-btn {
+  min-width: 200px;
+}
+
+.search-section input {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
