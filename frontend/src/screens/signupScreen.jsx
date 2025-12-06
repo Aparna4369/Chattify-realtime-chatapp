@@ -19,29 +19,42 @@ const SignupScreen = () => {
   const [register, { isLoading }] = useRegisterMutation();
 
   const submitHandler = async (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
+  e.preventDefault();
+  if (password !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return;
+  }
+
+  try {
+    const userData = { name, email, password };
+    const res = await register(userData).unwrap();
+    
+    console.log('Registration response:', res);
+    
+    // ✅ Store token in localStorage
+    if (res.token) {
+      localStorage.setItem('token', res.token);
+      console.log('Token stored in localStorage');
     }
-
-    try {
-     
-      const userData = {
-        name,
-        email,
-        password
-      };
-
-      const res = await register(userData).unwrap();
-
-      dispatch(setCredentials(res)); // Save user in Redux
-      toast.success("Account created successfully!");
-      navigate("/home");
-    } catch (error) {
-      toast.error(error?.data?.message || error.message);
-    }
-  };
+    
+    // ✅ Dispatch with token
+    dispatch(setCredentials({
+      userInfo: {
+        _id: res._id,
+        name: res.name,
+        email: res.email,
+        image: res.image
+      },
+      token: res.token
+    }));
+    
+    toast.success("Account created successfully!");
+    navigate("/home");
+    
+  } catch (error) {
+    toast.error(error?.data?.message || error.message);
+  }
+};
 
   return (
     <div className="body">

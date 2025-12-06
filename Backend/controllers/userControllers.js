@@ -73,6 +73,8 @@ const loginUser = asyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         image: user.image || null,
+         token: token, 
+          message: 'Login successful'
       });
     } else {
       console.log(' Login failed - invalid credentials');

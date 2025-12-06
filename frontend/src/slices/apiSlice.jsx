@@ -8,19 +8,23 @@ export const apiSlice = createApi({
     prepareHeaders: (headers, { getState }) => {
       const state = getState();
       
-      // Try multiple sources for token
-      const token = state.auth?.userInfo?.token || 
-                    localStorage.getItem('token');
+      console.log('🔐 API Slice: Getting token from state...');
       
-      // Add Authorization header if token exists
+      // Get token from multiple possible locations
+      let token = state.auth?.token || 
+                  state.auth?.userInfo?.token ||
+                  localStorage.getItem('token');
+      
+      console.log('🔐 Token found:', !!token);
+      
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
+        console.log('🔐 Authorization header set');
+      } else {
+        console.log('🔐 No token available for Authorization header');
+        console.log('🔐 Auth state:', state.auth);
+        console.log('🔐 localStorage token:', localStorage.getItem('token'));
       }
-      
-      // ✅ CORRECT: REMOVE ALL CUSTOM HEADERS THAT CAUSE CORS
-      // No X-Request-Time header
-      // No Cache-Control headers (browser handles this)
-      // No Pragma or Expires headers
       
       return headers;
     },

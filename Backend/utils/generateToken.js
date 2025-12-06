@@ -5,27 +5,22 @@ const generateToken = (res, userId) => {
     expiresIn: "30d",
   });
 
-  console.log('Token generated, setting cookie. NODE_ENV:', process.env.NODE_ENV);
+  console.log('Token generated, setting cookie.');
   
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+  // ALWAYS use these settings for cross-origin
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: true, // ✅ ALWAYS true for HTTPS
+    sameSite: 'none', // ✅ MUST be 'none' for cross-origin
     maxAge: 30 * 24 * 60 * 60 * 1000,
+    path: '/', // ✅ Important: Set path to root
+    domain: '.onrender.com' // ✅ Try with leading dot
   };
-  
-  // In production, ensure sameSite: 'none' and secure: true
-  if (isProduction) {
-    cookieOptions.sameSite = 'none';
-    cookieOptions.secure = true;
-  }
   
   console.log('Cookie options:', cookieOptions);
   
   res.cookie("jwt", token, cookieOptions);
-
+  
   return token;
 };
 

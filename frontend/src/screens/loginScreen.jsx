@@ -22,14 +22,35 @@ const LoginScreen = () => {
   }, [userInfo, navigate]);
 
   const submitHandler = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials(res));
-    } catch (error) {
-      toast.error(error.data?.message || "Invalid email or password");
+  e.preventDefault();
+  try {
+    const res = await login({ email, password }).unwrap();
+    
+    console.log('Login response:', res);
+    
+    // ✅ Store token in localStorage explicitly
+    if (res.token) {
+      localStorage.setItem('token', res.token);
+      console.log('Token stored in localStorage');
     }
-  };
+    
+    // ✅ Dispatch with proper format
+    dispatch(setCredentials({
+      userInfo: {
+        _id: res._id,
+        name: res.name,
+        email: res.email,
+        image: res.image
+      },
+      token: res.token // Make sure token is included
+    }));
+    
+    toast.success('Login successful!');
+    
+  } catch (error) {
+    toast.error(error.data?.message || "Invalid email or password");
+  }
+};
 
   return (
     <div className="body">
