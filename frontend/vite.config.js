@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // Should be 5001
+        target: "https://chattify-realtime-chatapp.onrender.com", // Should be 5001
         changeOrigin: true,
         secure: false,
       }

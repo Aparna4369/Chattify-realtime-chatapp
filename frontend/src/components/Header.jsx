@@ -42,7 +42,7 @@ function Header() {
                 <div className="d-flex align-items-center text-white">
                   {userInfo.image ? (
                     <img
-                      src={`http://localhost:5000${userInfo.image}`}
+                      src={`https://chattify-realtime-chatapp.onrender.com${userInfo.image}`}
                       alt={userInfo.name}
                       className="user-pic"
                       style={{

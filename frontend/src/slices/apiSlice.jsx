@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5001/api',
+    baseUrl: 'https://chattify-realtime-chatapp.onrender.com/api',
     credentials: 'include',
     prepareHeaders: (headers, { getState, endpoint }) => {
       const token = getState().auth?.userInfo?.token;
