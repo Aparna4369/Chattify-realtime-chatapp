@@ -15,32 +15,61 @@ connectDB();
 
 const app = express();
 
-// ✅ Add ALL your real frontend URLs here
+// ✅ Updated: Add pattern matching for Vercel preview URLs
 const allowedOrigins = [
   "http://localhost:5173",
   "https://chattify-realtime-chatapp.vercel.app",
-  "https://chattify-realtime-chatapp-2gteo70gc-aparna-a-ss-projects.vercel.app"
+  /^https:\/\/chattify-realtime-chatapp-.*\.vercel\.app$/ // Pattern for all preview deployments
 ];
 
-// ✅ CORS Middleware (fixes all errors)
+// ✅ CORS Middleware - FIXED (remove duplicate app.options)
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow Postman / server-to-server
-      if (allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin matches any allowed origin (string or regex)
+      const isAllowed = allowedOrigins.some(allowedOrigin => {
+        if (typeof allowedOrigin === 'string') {
+          return allowedOrigin === origin;
+        } else if (allowedOrigin instanceof RegExp) {
+          return allowedOrigin.test(origin);
+        }
+        return false;
+      });
+      
+      if (isAllowed) {
         return callback(null, true);
+      } else {
+        console.log("CORS blocked for origin:", origin);
+        return callback(new Error("Not allowed by CORS"), false);
       }
-      return callback(new Error("CORS blocked for this origin: " + origin));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    exposedHeaders: ['set-cookie'],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"]
   })
 );
+
+// ✅ REMOVED: app.options('*', cors({...})) - NOT NEEDED
 
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// ✅ ADD Debug Route (important for testing)
+app.get('/api/debug/cookies', (req, res) => {
+  console.log('Cookies received:', req.cookies);
+  console.log('Headers:', req.headers);
+  res.json({
+    cookies: req.cookies,
+    headers: req.headers,
+    message: 'Cookie debug info'
+  });
+});
 
 // API routes
 app.use("/api/users", userRoutes);
@@ -86,4 +115,5 @@ io.on("connection", (socket) => {
 // Start server
 server.listen(PORT, () => {
   console.log(` Server running on port ${PORT}`);
+  console.log(`Allowed origins:`, allowedOrigins);
 });
