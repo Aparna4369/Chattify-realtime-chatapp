@@ -15,26 +15,29 @@ connectDB();
 
 const app = express();
 
-// Allowed frontend origins
+// ✅ Add ALL your real frontend URLs here
 const allowedOrigins = [
-  "http://localhost:5173",                   // local frontend
-  "https://chattify-frontend.vercel.app"    // replace with your actual Vercel URL
+  "http://localhost:5173",
+  "https://chattify-realtime-chatapp.vercel.app",
+  "https://chattify-realtime-chatapp-2gteo70gc-aparna-a-ss-projects.vercel.app"
 ];
 
-// Middleware: CORS
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman / non-browser
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
+// ✅ CORS Middleware (fixes all errors)
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow Postman / server-to-server
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS blocked for this origin: " + origin));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
-// Parse requests
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -53,27 +56,31 @@ const io = new Server(server, {
   },
 });
 
-// Attach io to each request
+// Attach io
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
+// Socket.io
 io.on("connection", (socket) => {
   console.log(" New user connected:", socket.id);
 
   socket.on("setup", (userData) => {
     socket.join(userData._id);
-    console.log("User joined personal room:", userData._id);
     socket.emit("connected");
   });
 
   socket.on("joinChat", (chatId) => socket.join(chatId));
   socket.on("typing", (chatId) => socket.to(chatId).emit("typing"));
   socket.on("stopTyping", (chatId) => socket.to(chatId).emit("stopTyping"));
+
   socket.on("join group", (chatId) => socket.join(chatId));
   socket.on("leave group", (chatId) => socket.leave(chatId));
-  socket.on("disconnect", () => console.log(" User disconnected:", socket.id));
+
+  socket.on("disconnect", () =>
+    console.log(" User disconnected:", socket.id)
+  );
 });
 
 // Start server
