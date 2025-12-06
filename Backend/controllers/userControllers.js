@@ -11,9 +11,6 @@ const registerUser = asyncHandler(async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    console.log("REQ.BODY:", req.body);
-    console.log("REQ.FILE:", req.file); // <-- image file
-
     const userExist = await User.findOne({ email });
     if (userExist) {
       return res.status(400).json({ message: "User already exists" });
@@ -27,13 +24,19 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (user) {
-      generateToken(res, user._id);
+      // ✅ IMPORTANT: Get the token AND include it in response
+      const token = generateToken(res, user._id);
+      
+      console.log('✅ Token generated for user:', user._id);
 
+      // ✅ RETURN TOKEN IN RESPONSE BODY
       return res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         image: user.image,
+        token: token, // ← THIS IS MISSING! ADD IT
+        message: "Registration successful"
       });
     } else {
       res.status(400);
@@ -49,32 +52,23 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('🔐 LOGIN ATTEMPT for email:', email);
     
     const user = await User.findOne({ email });
-    console.log('🔐 User found in DB:', user?._id, user?.email);
     
     if (user && (await user.matchPassword(password))) {
-      console.log('✅ Password correct, generating token for user:', user._id);
+      // ✅ Get token
+      const token = generateToken(res, user._id);
       
+      console.log('✅ Login token generated');
       
-      res.cookie('jwt', '', {
-        httpOnly: true,
-        expires: new Date(0),
-        path: '/'
-      });
-      
-      generateToken(res, user._id);
-      
-      console.log('Login successful, sending response');
-      
+      // ✅ RETURN TOKEN IN RESPONSE BODY
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
         image: user.image || null,
-         token: token, 
-          message: 'Login successful'
+        token: token, // ← ADD THIS
+        message: 'Login successful'
       });
     } else {
       console.log(' Login failed - invalid credentials');

@@ -5,22 +5,22 @@ const generateToken = (res, userId) => {
     expiresIn: "30d",
   });
 
-  console.log('Token generated, setting cookie.');
+  console.log('✅ Token generated:', token.substring(0, 20) + '...');
   
-  // ALWAYS use these settings for cross-origin
+  // Cookie settings for cross-origin
   const cookieOptions = {
     httpOnly: true,
-    secure: true, // ✅ ALWAYS true for HTTPS
-    sameSite: 'none', // ✅ MUST be 'none' for cross-origin
+    secure: true,
+    sameSite: 'none',
     maxAge: 30 * 24 * 60 * 60 * 1000,
-    path: '/', // ✅ Important: Set path to root
-    domain: '.onrender.com' // ✅ Try with leading dot
+    path: '/',
   };
-  
-  console.log('Cookie options:', cookieOptions);
   
   res.cookie("jwt", token, cookieOptions);
   
+  console.log('✅ Cookie set with sameSite: none, secure: true');
+  
+  // ✅ MUST RETURN THE TOKEN
   return token;
 };
 

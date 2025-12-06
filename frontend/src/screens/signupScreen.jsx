@@ -18,7 +18,7 @@ const SignupScreen = () => {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
 
-  const submitHandler = async (e) => {
+ const submitHandler = async (e) => {
   e.preventDefault();
   if (password !== confirmPassword) {
     toast.error("Passwords do not match");
@@ -29,15 +29,24 @@ const SignupScreen = () => {
     const userData = { name, email, password };
     const res = await register(userData).unwrap();
     
-    console.log('Registration response:', res);
+    // ✅ DEBUG: Log entire response
+    console.log('=== FULL REGISTRATION RESPONSE ===');
+    console.log('Response object:', res);
+    console.log('Response keys:', Object.keys(res));
+    console.log('Has token?', 'token' in res);
+    console.log('Token value:', res.token);
+    console.log('=== END DEBUG ===');
     
-    // ✅ Store token in localStorage
+    // Store in localStorage
     if (res.token) {
       localStorage.setItem('token', res.token);
-      console.log('Token stored in localStorage');
+      console.log('✅ Token stored in localStorage');
+    } else {
+      console.error('❌ ERROR: No token in response!');
+      console.error('Response was:', res);
     }
     
-    // ✅ Dispatch with token
+    // Dispatch to Redux
     dispatch(setCredentials({
       userInfo: {
         _id: res._id,
@@ -45,7 +54,7 @@ const SignupScreen = () => {
         email: res.email,
         image: res.image
       },
-      token: res.token
+      token: res.token // This will be undefined if no token
     }));
     
     toast.success("Account created successfully!");
